@@ -1,0 +1,313 @@
+# Portfolio project
+# Art Institute of Chicago API
+#
+# Endpoints:
+# - GET /artworks/{id}
+# - GET /artworks
+# - GET /artworks/search
+
+openapi: 3.1.0
+info:
+  title: "Art Institute of Chicago API: Documentation sample"
+  version: 1.0.0
+  description: |
+    Retrieve artwork records from the Art Institute of Chicago collection.
+    No API key is required.
+
+    **Licensing:** Data usage and licensing are subject to the Art Institute of Chicago Terms and Conditions.
+servers:
+  - url: https://api.artic.edu/api/v1
+tags:
+  - name: Artworks
+paths:
+  /artworks/{id}:
+    get:
+      tags: [Artworks]
+      operationId: getArtwork
+      summary: Get an artwork by ID
+      description: Returns a single artwork record wrapped in a standard response envelope.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique numeric ID of the artwork. Non-numeric values return a 400 error.
+          schema:
+            type: integer
+          example: 129884
+        - name: fields
+          in: query
+          required: false
+          description: Comma-separated list of fields to return. Omit to return all fields.
+          schema:
+            type: string
+          example: id,title,artist_display,date_display
+      responses:
+        "200":
+          description: The requested artwork.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkResponse"
+        "400":
+          description: The identifier is not valid, for example a non-numeric value or 0.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"  
+        "404":
+          description: No artwork exists with the given ID.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+              example:
+                status: 404
+                error: Not found
+                detail: The item you requested cannot be found.
+  /artworks:
+    get:
+      tags: [Artworks]
+      operationId: listArtworks
+      summary: List artworks
+      description: Returns a paginated list of artworks wrapped in the standard response envelope.
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number to return.
+          schema:
+            type: integer
+          example: 2
+        - name: limit
+          in: query
+          required: false
+          description: Number of artworks to return per page.
+          schema:
+            type: integer
+          example: 5
+        - name: fields
+          in: query
+          required: false
+          description: Comma-separated list of fields to return. Omit to return all fields.
+          schema:
+            type: string
+          example: id,title,artist_title
+      responses:
+        "200":
+          description: A page of artworks.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkListResponse"
+  /artworks/search:
+    get:
+      tags: [Artworks]
+      operationId: searchArtworks
+      summary: Search artworks
+      description: Searches the collection by keyword. Results are ranked by relevance, and each result includes a relevance score.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Keyword or phrase to search for.
+          schema:
+            type: string
+          example: monet
+        - name: limit
+          in: query
+          required: false
+          description: Number of results to return.
+          schema:
+            type: integer
+          example: 2
+        - name: fields
+          in: query
+          required: false
+          description: Comma-separated list of fields to return. Omit to return a default set of fields, including a thumbnail object. Use this parameter to keep responses compact.
+          schema:
+            type: string
+          example: id,title,artist_title
+      responses:
+        "200":
+          description: A page of search results.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkSearchResponse"  
+components:
+  schemas:
+    ArtworkResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/Artwork"
+        info:
+          $ref: "#/components/schemas/Info"
+        config:
+          $ref: "#/components/schemas/Config"
+    Artwork:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 129884
+        title:
+          type: string
+          example: Starry Night and the Astronauts
+        artist_title:
+          type: [string, "null"]
+          example: Alma Thomas
+        artist_display:
+          type: [string, "null"]
+          description: Artist or culture name followed by a newline and additional details, such as nationality and life dates.
+          example: "Alma Thomas\nAmerican, 1891–1978"
+        date_display:
+          type: [string, "null"]
+          description: Human-readable date or date range. May be a year or descriptive text, such as "Late 19th to early 20th century".
+          example: "1972"
+        place_of_origin:
+          type: [string, "null"]
+          description: Country or region associated with the artwork.
+          example: United States
+        medium_display:
+          type: [string, "null"]
+          description: Materials or artistic medium used to create the artwork.
+          example: Acrylic on canvas
+        short_description:
+          type: [string, "null"]
+          description: Brief summary of the artwork.
+          example: "Alma Thomas was enthralled by astronauts and outer space. This painting, made when she was 81, showcases that fascination through her signature style of short, rhythmic strokes of paint."
+        is_public_domain:
+          type: boolean
+          description: Indicates whether the API identifies the artwork as being in the public domain.
+          example: false
+        copyright_notice:
+          type: [string, "null"]
+          description: Rights statement associated with the artwork.
+        is_on_view:
+          type: boolean
+          description: Indicates whether the artwork is currently on public display.
+          example: false
+        image_id:
+          type: [string, "null"]
+          description: Identifier used to build an image URL.
+          example: e966799b-97ee-1cc6-bd2f-a94b4b8bb8f9
+        updated_at:
+          type: string
+          format: date-time
+          description: Date and time when the artwork was last updated.
+    Info:
+      type: object
+      properties:
+        license_text:
+          type: string
+          description: License notice that applies to the data in the response.
+          example: "The `description` field in this response is licensed under a Creative Commons Attribution 4.0 Generic License (CC-By) and the Terms and Conditions of artic.edu. All other data in this response is licensed under a Creative Commons Zero (CC0) 1.0 designation and the Terms and Conditions of artic.edu."
+        license_links:
+          type: array
+          items:
+            type: string
+            format: uri
+        version:
+          type: string
+          example: "1.16"
+    Config:
+      type: object
+      properties:
+        iiif_url:
+          type: string
+          format: uri
+          description: Base URL for building image links.
+          example: https://www.artic.edu/iiif/2
+        website_url:
+          type: string
+          format: uri
+    ArtworkListResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Artwork"
+        info:
+          $ref: "#/components/schemas/Info"
+        config:
+          $ref: "#/components/schemas/Config"
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: Total number of artworks available.
+        limit:
+          type: integer
+          description: Number of artworks returned per page.
+        offset:
+          type: integer
+          description: Number of artworks skipped before this page.
+        total_pages:
+          type: integer
+        current_page:
+          type: integer
+        next_url:
+          type: string
+          format: uri
+          description: URL of the next page of results.
+          example: https://api.artic.edu/api/v1/artworks?page=2&limit=1
+        prev_url:
+          type: string
+          format: uri
+          description: URL of the previous page of results. Not returned on the first page.
+          example: https://api.artic.edu/api/v1/artworks?page=1&limit=1
+    ArtworkSearchResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/ArtworkSearchResult"
+        info:
+          $ref: "#/components/schemas/Info"
+        config:
+          $ref: "#/components/schemas/Config"
+    ArtworkSearchResult:
+      type: object
+      properties:
+        _score:
+          type: number
+          description: Relevance score for this result. Higher scores indicate a closer match to the query.
+          example: 132.24275
+        id:
+          type: integer
+          example: 16568
+        title:
+          type: string
+          example: Water Lilies
+        artist_title:
+          type: [string, "null"]
+          description: Artist name. Returned when requested with the fields parameter.
+          example: Claude Monet
+        api_link:
+          type: string
+          format: uri
+          description: URL of the full artwork record. Included in the default response.
+          example: https://api.artic.edu/api/v1/artworks/16568
+    Error:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: HTTP status code of the error.
+          example: 400
+        error:
+          type: string
+          description: Short error name.
+          example: Invalid syntax
+        detail:
+          type: string
+          description: Explanation of what went wrong.
+          example: The identifier syntax is invalid.          
