@@ -11,7 +11,21 @@ info:
   title: "Art Institute of Chicago API: Documentation sample"
   version: 1.0.0
   description: |
-    Retrieve artwork records from the Art Institute of Chicago collection.
+    This documentation sample covers three endpoints from the public Art Institute of Chicago API.
+
+    The specification was developed by analyzing live API responses in browser Developer 
+    Tools and validating endpoint behavior in Swagger Editor. The sample focuses on 
+    common developer tasks: retrieving artwork details, browsing the collection, and 
+    searching for artworks by keyword.
+
+    ## How to use this sample
+
+    1. Expand an endpoint in the Artworks section.
+    2. Review the parameters and response schema.
+    3. Click **Test Request** to call the live API.
+    4. For the search endpoint, try terms such as `warhol`, `alma`, or`astronaut`.
+    5. Review the returned JSON response in the response panel.
+
     No API key is required.
 
     **Licensing:** Data usage and licensing are subject to the Art Institute of Chicago Terms and Conditions.
@@ -19,6 +33,7 @@ servers:
   - url: https://api.artic.edu/api/v1
 tags:
   - name: Artworks
+    description: Retrieve artwork details, browse the collection, and search for artworks by keyword.
 paths:
   /artworks/{id}:
     get:
