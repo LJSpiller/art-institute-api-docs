@@ -23,7 +23,7 @@ info:
     1. Expand an endpoint in the Artworks section.
     2. Review the parameters and response schema.
     3. Click **Test Request** to call the live API.
-    4. For the search endpoint, try terms such as `warhol`, `alma`, or`astronaut`.
+    4. For the search endpoint, try terms such as `warhol`, `alma`, or `astronaut`.
     5. Review the returned JSON response in the response panel.
 
     No API key is required.
@@ -68,7 +68,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Error"  
+                $ref: "#/components/schemas/Error"
+              example:
+                status: 400
+                error: Invalid syntax
+                detail: The identifier syntax is invalid.            
         "404":
           description: No artwork exists with the given ID.
           content:
@@ -325,4 +329,4 @@ components:
         detail:
           type: string
           description: Explanation of what went wrong.
-          example: The identifier syntax is invalid.          
+          example: The identifier syntax is invalid.    
